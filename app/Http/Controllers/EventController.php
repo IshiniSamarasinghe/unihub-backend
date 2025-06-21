@@ -60,15 +60,15 @@ class EventController extends Controller
     $rejectLink = "http://localhost:8000/reject?token={$token}";
 
     // Build message body with line breaks before each link
-    $message = "📢 *New Event Approval Request*\n\n"
-        . "🔶 *Society:* {$validated['society']}\n"
-        . "🔶 *Requested by:* {$validated['position']}\n"
-        . "🔶 *Event Name:* {$validated['name']}\n"
-        . "🔶 *Date:* {$validated['date']}\n"
-        . "🔶 *Time:* {$validated['time']}\n\n"
-        . "Do you approve this event?\n\n"
-        . "✅ *Accept:* \n{$acceptLink}\n"
-        . "❌ *Reject:* \n{$rejectLink}";
+   $message = "📢 *New Event Approval Request*\n\n"
+    . "🔸 *Society:* {$validated['society']}\n"
+    . "🔸 *Event:* {$validated['name']}\n"
+    . "🔸 *Requested by:* {$validated['position']}\n"
+    . "🔸 *Date:* {$validated['date']} at {$validated['time']}\n\n"
+    . "Do you approve this event?\n"
+    . "Reply with:\n"
+    . "1️⃣ to *Approve*\n"
+    . "2️⃣ to *Reject*";
 
     // Send WhatsApp message via UltraMsg
     Http::post("https://api.ultramsg.com/instance126986/messages/chat", [

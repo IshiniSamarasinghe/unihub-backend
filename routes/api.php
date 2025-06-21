@@ -22,3 +22,4 @@ Route::put('/users/{id}', [UserController::class, 'update']);
 
 Route::post('/events', [EventController::class, 'store']);
 
+ 

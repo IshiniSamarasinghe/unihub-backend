@@ -3,7 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-
+use App\Http\Controllers\UltraMsgWebhookController;
 /*
 |--------------------------------------------------------------------------
 | API + Auth Routes
@@ -38,3 +38,4 @@ Route::post('/logout', function (Request $request) {
 */
 
 Route::view('/{any}', 'react')->where('any', '.*');
+ 
