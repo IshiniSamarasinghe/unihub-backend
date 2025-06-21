@@ -1,0 +1,79 @@
+.admin-login-container {
+  display: flex;
+  height: 100vh;
+  background-color: #f9f9f9;
+  justify-content: center;
+  align-items: center;
+  font-family: 'Poppins', sans-serif;
+}
+
+.login-box {
+  background-color: white;
+  padding: 2.5rem;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  width: 320px;
+  text-align: center;
+}
+.login-box h1 {
+  margin-top:-10px;
+  color: #000000;
+  
+
+}
+
+.login-box h2 {
+  margin-top: -10px;
+  color: #b4511f;
+  font-size: 15px;
+}
+
+.login-box input {
+  width: 100%;
+  padding: 0.7rem;
+  margin-bottom: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 0.9rem;
+}
+
+.login-box button {
+  background-color: #b4511f;
+  color: white;
+  border: none;
+  padding: 0.7rem;
+  width: 100%;
+  border-radius: 6px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.login-box button:hover {
+  background-color: #8a3e17;
+}
+
+.forgot-password-link {
+  font-size: 12px;
+  margin-top: 0.5rem;
+}
+
+.forgot-password-link a {
+  color: #b4511f;
+  text-decoration: none;
+}
+
+.forgot-password-link a:hover {
+  text-decoration: underline;
+}
+
+.text-button {
+  background: none;
+  border: none;
+  color: #b4511f;
+  font-size: 12px;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+

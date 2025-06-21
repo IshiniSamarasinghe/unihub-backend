@@ -1,0 +1,88 @@
+/* src/pages/SignIn.css */
+.signin-container {
+    display: flex;
+    height: 100vh;
+}
+
+.signin-left {
+    flex: 1;
+    background-color: #b4511f;
+    color: white;
+    padding: 3rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.signin-left .welcome-text {
+    margin-top: 1rem;
+    font-size: 20px;
+    max-width: 500px;
+    margin-top: 5px;
+}
+
+.signin-left .logo {
+    font-size: 2rem;
+    font-weight: bold;
+    margin-top: -50px;
+    margin-left: -400px;
+}
+
+.signin-illustration {
+    margin-top: 2rem;
+    width: 80%;
+    max-width: 300px;
+    margin-left: 70px;
+}
+
+.signin-right {
+    flex: 1;
+    padding: 4rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.signin-form input,
+.signin-form button {
+    width: 100%;
+    margin: 0.6rem 0;
+    padding: 0.7rem;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+.signin-btn {
+    background-color: black;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.signin-options {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.85rem;
+    margin-top: 0.5rem;
+
+
+}
+
+.signup-redirect {
+    margin-top: 1rem;
+    text-align: center;
+}
+
+.forgot-password {
+    text-align: right;
+}
+
+.remember-me {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    white-space: nowrap;
+    font-size: 10px;
+    margin-top: 1.5px;
+
+}

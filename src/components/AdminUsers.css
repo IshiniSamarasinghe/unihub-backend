@@ -1,0 +1,79 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins&display=swap');
+
+.user-management {
+  font-family: 'Poppins', sans-serif;
+  margin-top: 2rem;
+
+  
+}
+
+.user-management h3 {
+  margin-bottom: 1rem;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+th, td {
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+
+.edit-btn, .delete-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  margin-right: 10px;
+  color: #333;
+  transition: color 0.3s ease;
+}
+
+.edit-btn:hover {
+  color: #007bff;
+}
+
+.delete-btn:hover {
+  color: red;
+}
+
+.menu-item:hover {
+  background-color: #f0f0f0;
+}
+
+.menu-item.active {
+  background-color: #ead8b1;
+  font-weight: 500;
+  height: 30px;
+  color: #000000;
+}
+
+.logout-btn {
+  background: none;
+  border: none;
+  color: white;
+  text-align: left;
+  padding: 0.6rem 0.8rem;
+  font-family: inherit;
+  font-size: inherit;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.logout-btn:hover {
+  background-color: rgba(255,255,255,0.1);
+}
+
+.submission-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 2rem; /* 👈 This creates the vertical gap */
+}
+ 
+

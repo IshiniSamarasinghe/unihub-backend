@@ -1,0 +1,124 @@
+.about-hero {
+  
+  background-size: cover;
+  background-position: center;
+  height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.about-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 2rem;
+  font-weight: bold;
+  margin-left: 20px;
+  
+}
+
+
+.about-hero h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: 35px;
+  color: #000000;
+  text-align: left;
+  width: 100%;
+  padding-left: 3rem;
+  
+
+}
+
+.about-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 3rem 6rem;
+  
+}
+
+.about-section.reverse {
+  flex-direction: row-reverse;
+}
+
+.about-text {
+  max-width: 50%;
+  text-align: left;
+}
+
+.about-text h5 {
+  font-size: 0.8rem;
+  color: #3b3b3b;
+  letter-spacing: 1px;
+  margin-bottom: 10px;
+}
+
+.about-text h2 {
+  font-size: 25px;
+  margin: 0.5rem 0;
+ 
+  font-weight:400;
+  font-family: Poppins;
+}
+
+.about-text p {
+  font-size: 0.9rem;
+  line-height: 1.6;
+  color: #757272;
+  margin-bottom: 30px;
+}
+
+.about-image img {
+  width: 90%;
+  max-width: 350px;
+  margin-top: -30px;     /* Move image up */
+  margin-left: -20px; 
+   
+}
+
+
+.orange-button {
+  background-color: #000000;
+  border: none;
+  padding: 0.6rem 1.4rem;
+  margin-top: 1rem;
+  font-size: 12px;
+  cursor: pointer;
+  border-radius:5px;
+  font-weight: regular;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3S ease;
+  color: white;
+  text-decoration: none;
+  
+
+
+}
+
+.orange-button:hover {
+  background-color: #EAD8B1; /* Darker orange on hover */
+  color: #000000;
+  transition: 0.3s;   /* Slight zoom-in effect */
+  border: white;
+}
+
+.black-button {
+  background-color: black;
+  color: white;
+  border: none;
+  padding: 0.6rem 1.4rem;
+  margin-top: 1rem;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.logo-strip {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  padding: 2rem;
+  gap: 1.5rem;
+}
+
+.logo-strip img {
+  height: 60px;
+}

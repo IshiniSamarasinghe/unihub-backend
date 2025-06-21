@@ -1,0 +1,113 @@
+.create-event-container {
+  display: flex;
+  height: 110vh;
+  font-family: 'Poppins', sans-serif;
+}
+
+.create-left {
+  flex: 1;
+  background-color: #a8460f; /* Rich orange */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.event-image {
+  max-width: 80%;
+  height: auto;
+}
+
+.create-right {
+  flex: 2;
+  padding: 40px;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+}
+
+.logo {
+  font-size: 28px;
+  font-weight: 700;
+  text-align: center;
+  margin-top: 10px;
+}
+
+.subtitle {
+  text-align: center;
+  margin-bottom: 30px;
+  margin-top: -10px;
+}
+
+.event-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.form-row {
+  display: flex;
+  gap: 20px;
+}
+
+.form-row input,
+.form-row select,
+.form-row textarea {
+  flex: 1;
+  padding: 10px;
+  border: 1px solid #a8460f;
+  border-radius: 5px;
+}
+
+textarea {
+  resize: none;
+  height: 100px;
+}
+
+.media-upload {
+  position: relative;
+}
+
+.media-plus {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 24px;
+  color: #a8460f;
+  cursor: pointer;
+  user-select: none;
+}
+.create-btn {
+  width: 100%;
+  padding: 12px;
+  background-color: #000;
+  color: #fff;
+  font-weight: bold;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+}
+
+.create-btn:disabled {
+  background-color: #555;
+  cursor: not-allowed;
+}
+
+.spinner {
+  width: 16px;
+  height: 16px;
+  border: 3px solid #fff;
+  border-top: 3px solid #a8460f;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

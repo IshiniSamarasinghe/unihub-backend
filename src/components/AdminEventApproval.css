@@ -1,0 +1,165 @@
+.admin-layout {
+  display: flex;
+  font-family: 'Poppins', sans-serif;
+}
+
+/* Sidebar */
+.admin-sidebar {
+  width: 250px;
+  background-color: #b4511f;
+  color: white;
+  min-height: 130vh;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.admin-profile {
+  text-align: center;
+  margin-bottom: 2rem;
+
+}
+
+.admin-avatar {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  margin-bottom: 0.5rem;
+  object-fit: cover;
+  border: 2px solid white;
+}
+
+.admin-menu a {
+  color: white;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  text-decoration: none;
+  padding: 0.2rem 0;
+  transition: background-color 0.2s;
+  margin-top: 30px;
+  padding-left: 10px;
+}
+
+.admin-menu a:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+}
+
+.admin-footer {
+  text-align: center;
+  font-size: 0.8rem;
+  opacity: 0.8;
+  color: #fff;
+  margin-top: 50px;
+}
+
+/* Main content */
+.admin-main {
+  flex-grow: 1;
+  padding: 2rem;
+  background-color: #f5f5f5;
+  min-height: 100vh;
+}
+
+.admin-topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.search-bar {
+  background-color: white;
+  border: 1px solid #ccc;
+  padding: 0.4rem 0.8rem;
+  display: flex;
+  align-items: center;
+  border-radius: 5px;
+  gap: 0.5rem;
+}
+
+.search-bar input {
+  border: none;
+  outline: none;
+  font-size: 0.9rem;
+}
+
+.notification-icon {
+  font-size: 1.2rem;
+  cursor: pointer;
+}
+
+/* Approval section */
+.approval-section h2 {
+  margin-bottom: 1rem;
+  font-size: 1.2rem;
+}
+
+.approval-section table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: white;
+  border-radius: 6px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.approval-section th,
+.approval-section td {
+  padding: 0.8rem 1rem;
+  text-align: left;
+  font-size: 0.9rem;
+  border-bottom: 1px solid #eee;
+}
+
+.status.pending {
+  background-color: #f9c74f;
+  color: #000;
+  padding: 0.2rem 0.6rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+}
+
+.approve-btn {
+  background-color: #2ecc71;
+  color: white;
+  border: none;
+  padding: 0.3rem 0.8rem;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-right: 0.5rem;
+  font-size: 0.8rem;
+}
+
+.reject-btn {
+  background-color: #e74c3c;
+  color: white;
+  border: none;
+  padding: 0.3rem 0.8rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.8rem;
+}
+
+.approve-btn:hover {
+  background-color: #00ae49;
+  color: white;
+}
+
+.reject-btn:hover {
+  background-color: #c52817;
+}
+
+.menu-item:hover {
+  background-color: #f0f0f0;
+  color: black;
+}
+
+.menu-item.active {
+  background-color: #ead8b1;
+  font-weight: 500;
+  height: 30px;
+  color: #000000;
+}

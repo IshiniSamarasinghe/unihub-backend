@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 <p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
 
 <p align="center">
@@ -59,3 +60,22 @@ If you discover a security vulnerability within Laravel, please send an e-mail t
 ## License
 
 The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+=======
+# UniHub - University Event Portal 🎓
+
+UniHub is a centralized platform for students to explore, manage, and share university events.
+
+## 🌟 Features
+
+- Discover upcoming university events
+- Filter by university, faculty, and society
+- Responsive search and event listings
+- Beautiful UI with Playfair + Poppins fonts
+- Built with React + CSS
+
+## 🚀 Getting Started
+
+```bash
+npm install
+npm start
+>>>>>>> 2c11951e841b02c9e332ced13abd9a49b6ca5d3c

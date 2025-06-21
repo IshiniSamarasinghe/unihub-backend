@@ -1,0 +1,115 @@
+ 
+
+.admin-footer {
+  text-align: center;
+  font-size: 0.8rem;
+  opacity: 0.8;
+}
+
+/* Main Content */
+.admin-main {
+  flex-grow: 1;
+  padding: 2rem;
+  background-color: #f5f5f5;
+  min-height: 100vh;
+}
+
+/* Topbar */
+.admin-topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.search-bar {
+  background-color: white;
+  border: 1px solid #ccc;
+  padding: 0.4rem 0.8rem;
+  display: flex;
+  align-items: center;
+  border-radius: 5px;
+  gap: 0.5rem;
+}
+
+.search-bar input {
+  border: none;
+  outline: none;
+  font-size: 0.9rem;
+}
+
+.notification-icon {
+  font-size: 1.2rem;
+  cursor: pointer;
+}
+
+/* Table Section */
+.all-events-section h2 {
+  margin-bottom: 1rem;
+  font-size: 1.3rem;
+}
+
+.all-events-section table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: white;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.all-events-section th,
+.all-events-section td {
+  padding: 0.9rem 1rem;
+  font-size: 0.9rem;
+  border-bottom: 1px solid #eee;
+  text-align: left;
+}
+
+.status.approved {
+  background-color: #d4edda;
+  color: #155724;
+  padding: 0.3rem 0.7rem;
+  font-size: 0.75rem;
+  border-radius: 6px;
+}
+
+.edit-btn,
+.delete-btn,
+.view-btn {
+  padding: 0.3rem 0.8rem;
+  font-size: 0.8rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-right: 0.5rem;
+}
+
+.edit-btn {
+  background-color: #3498db;
+  color: white;
+}
+
+.edit-btn:hover {
+  background-color: #0281d6;
+  color: white;
+}
+
+.delete-btn {
+  background-color: #e74c3c;
+  color: white;
+}
+
+.delete-btn:hover {
+ background-color: #c52817;
+ color: white;
+}
+.view-btn {
+  background-color: #384f68;
+  color: white;
+   text-decoration: none;
+}
+
+.view-btn:hover {
+  background-color: #464646;;
+}

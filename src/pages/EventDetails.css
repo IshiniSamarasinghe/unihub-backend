@@ -1,0 +1,134 @@
+/* EventDetails.css */
+
+.event-details-hero {
+  margin-top: 0;
+  padding-top: 0;
+}
+
+.event-details-hero h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: 2rem;
+  margin-bottom: 1.5rem;
+}
+
+.event-details-hero img {
+  width: 80%;
+  max-width: 900px;
+  height: auto;
+  border-radius: 10px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  margin-bottom: 3rem;
+}
+
+/* 2-Column Detail Grid */
+.event-details-grid {
+  max-width: 800px;
+  margin: 2rem auto;
+  padding: 0 5rem;
+  font-family: 'Poppins', sans-serif;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  /* align to the left */
+  margin-left: 350px;
+
+}
+
+.event-details-grid p {
+  margin: 0.6rem 0;
+  line-height: 1.5;
+}
+
+.event-details-grid strong {
+  display: inline-block;
+  width: 130px;
+  /* Aligns labels neatly */
+}
+
+.left,
+.right {
+  flex: 1;
+  min-width: 300px;
+  max-width: 500px;
+}
+
+.left p,
+.right p {
+  margin: 0.8rem 0;
+  font-size: 14px;
+  color: #333;
+}
+
+.left p strong,
+.right p strong {
+  font-weight: bold;
+  margin-right: 0.5rem;
+}
+
+.event-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 40px;
+}
+
+.event-image-container {
+  position: relative;
+  display: inline-block;
+  margin-left: 280px;
+}
+
+.more-menu-container {
+  position: absolute;
+  top: 14px;
+  right: 200px;
+  z-index: 10;
+}
+
+.more-icon {
+  font-size: 1.5rem;
+  color: white;
+  border-radius: 50%;
+  padding: 6px;
+  cursor: pointer;
+
+}
+
+
+.dropdown-menu {
+  position: absolute;
+  top: 32px;
+  right: 0;
+  background-color: white;
+  border: 1px solid #ccc;
+  padding: 0.5rem 1rem;
+  border-radius: 5px;
+  z-index: 20;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.dropdown-menu button {
+  background: none;
+  border: none;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+/* Adds spacing between slider and footer */
+.slider-section {
+  margin-bottom: 4rem;
+  background-color: transparent;
+  margin-top: 4rem;
+}
+
+.event-card {
+  background-color: #fff;
+  /* keep this only if you want a card-like look */
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+  /* soft shadow */
+  border-radius: 8px;
+}
+
+.slider-heading {
+  margin-bottom: 3rem;
+}

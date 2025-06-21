@@ -1,0 +1,137 @@
+/* ---------- Grid View Section (Past Events) ---------- */
+.event-section {
+  padding: 2rem;
+}
+
+.event-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 2rem;
+  justify-items: center;
+}
+
+.event-card {
+  background-color: white;
+  border-radius: 5px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  text-align: left;
+  max-width: 300px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  flex: 0 0 auto;
+  width: 280px;
+}
+
+.event-card:hover {
+  transform: scale(1.05);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+}
+
+.event-image {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+  margin-left: 30px;
+}
+
+.event-title {
+  font-size: 14px;
+  font-weight: bold;
+  margin: 0.8rem 1rem 0 1rem;
+  font-family: Poppins;
+}
+
+.event-university {
+  font-size: 12px;
+  color: #555;
+  margin: 0.3rem 1rem 1rem 1rem;
+  font-family: Poppins;
+}
+
+/* ---------- View All Button ---------- */
+.view-all-wrapper {
+  display: flex;
+  justify-content: center;
+  margin-top: 4rem;
+}
+
+.view-all-button {
+  background-color: #EAD8B1;
+  color: black;
+  padding: 0.6rem 1.5rem;
+  font-size: 12px;
+  border-radius: 5px;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  font-family: Poppins;
+  text-decoration: none;
+}
+
+.view-all-button:hover {
+  background-color: #000;
+  border: 1px solid #fff;
+  color: #fff;
+}
+
+/* ---------- Slider Section (Upcoming Events) ---------- */
+.slider-section {
+  margin-top: 3rem;
+  text-align: center;
+}
+
+.slider-heading {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.6rem;
+  margin-bottom: 1rem;
+}
+
+.slider-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 2rem;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.event-slider {
+  display: flex;
+  overflow: hidden;
+  gap: 1rem;
+  scroll-behavior: smooth;
+  width: 900px; /* fit exactly 3 cards (280 * 3 + gap) */
+  scrollbar-width: none;
+}
+
+.event-slider::-webkit-scrollbar {
+  display: none;
+}
+
+/* ---------- Arrows ---------- */
+.slider-arrow {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: black;
+  z-index: 2;
+  padding: 0.5rem;
+  transition: transform 0.2s ease;
+}
+
+.slider-arrow:hover {
+  transform: scale(1.2);
+  color: #b4511f;
+}
+
+.slider-arrow.left {
+  position: absolute;
+  left: -100px;
+}
+
+.slider-arrow.right {
+  position: absolute;
+  right: -100px;
+}

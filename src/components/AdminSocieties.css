@@ -1,0 +1,82 @@
+.society-management {
+  font-family: 'Poppins', sans-serif;
+  margin-top: 2rem;
+}
+
+.society-management h3 {
+  margin-bottom: 1rem;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+  background-color: white;
+  border-radius: 6px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+th, td {
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid #eee;
+}
+
+.edit-btn2, .delete-btn2 {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  margin-right: 10px;
+  color: #ffffff;
+  transition: color 0.3s ease;
+ 
+  padding: 0.4rem 0.6rem;
+  margin-right: 0.5rem;
+  border-radius: 5px;
+ 
+}
+
+.edit-btn2:hover {
+  background-color: #000000;
+}
+
+.edit-btn2{
+  background-color: #f0ad4e;
+}
+
+.delete-btn2:hover {
+  background-color: rgb(0, 0, 0);
+}
+
+.delete-btn2{
+  background-color: #d9534f;
+}
+
+.menu-item:hover {
+  background-color: #f0f0f0;
+}
+
+.menu-item.active {
+  background-color: #ead8b1;
+  font-weight: 500;
+  height: 30px;
+  color: #000000;
+}
+
+.logout-btn {
+  background: none;
+  border: none;
+  color: white;
+  text-align: left;
+  padding: 0.6rem 0.8rem;
+  font-family: inherit;
+  font-size: inherit;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.logout-btn:hover {
+  background-color: rgba(255,255,255,0.1);
+}

@@ -1,0 +1,75 @@
+ 
+
+/* === Recent Submissions === */
+.recent-submissions {
+  background-color: #fff;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.04);
+}
+
+.recent-submissions h3 {
+  margin-bottom: 1rem;
+  font-size: 1.1rem;
+}
+
+.recent-submissions table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 1.2rem;
+}
+
+.recent-submissions th,
+.recent-submissions td {
+  text-align: left;
+  padding: 0.8rem;
+  font-size: 0.85rem;
+  border-bottom: 1px solid #eee;
+}
+
+.status {
+  padding: 0.3rem 0.7rem;
+  border-radius: 6px;
+  font-size: 0.75rem;
+}
+
+.status.pending {
+  background-color: #fff3cd;
+  color: #856404;
+}
+
+/* === Table Footer Buttons === */
+.submission-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+}
+
+.clear-btn,
+.view-all-btn {
+  padding: 0.5rem 1.2rem;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.clear-btn {
+  background-color: #fff;
+  border: 1px solid #ccc;
+  color: #000;
+}
+
+.clear-btn:hover {
+  background-color: #eee;
+}
+
+.view-all-btn {
+  background-color: #b4511f;
+  color: white;
+}
+
+.view-all-btn:hover {
+  background-color: #a14318;
+}

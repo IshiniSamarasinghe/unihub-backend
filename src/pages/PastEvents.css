@@ -1,0 +1,49 @@
+/* Reuse same layout as upcoming events */
+
+.past-events {
+    padding-bottom: 3rem;
+}
+
+.events-hero {
+    background-size: cover;
+    background-position: center;
+    height: 200px;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    padding-left: 3rem;
+    color: #1a1a1a;
+}
+
+.events-hero h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 2rem;
+
+    padding: 0.5rem 1rem;
+    border-radius: 5px;
+}
+
+.pagination-wrapper {
+    text-align: center;
+    margin-top: 2rem;
+}
+
+.page-btn {
+    margin: 0 5px;
+    padding: 0.3rem 0.8rem;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    background-color: transparent;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.page-btn:hover {
+    background-color: #ead8b1;
+}
+
+.page-btn.active {
+    background-color: #ead8b1;
+    font-weight: bold;
+}

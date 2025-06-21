@@ -1,0 +1,39 @@
+.nav-link {
+    color: white;
+    text-decoration: none;
+    position: relative;
+    padding-bottom: 4px;
+  }
+  
+  .nav-link::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    height: 2px;
+    width: 0%;
+    background-color: rgb(255, 255, 255);
+    transition: width 0.3s ease-in-out;
+  }
+  
+  .nav-link:hover::after {
+    width: 100%;
+  }
+
+  .nav-signup-button{
+    text-decoration: none;
+    color: black;
+  }
+
+  .store-icon-link {
+  color: #fff;
+  font-size: 1.2rem;
+  transition: color 0.3s ease, transform 0.3s ease;
+}
+
+.store-icon-link:hover {
+  color: #ead8b1;
+  transform: scale(1.2);
+}
+
+  

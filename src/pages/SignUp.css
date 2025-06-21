@@ -1,0 +1,109 @@
+/* Apply Poppins to everything in the sign-up section */
+.signup-container {
+    display: flex;
+    min-height: 100vh;
+    font-family: 'Poppins', sans-serif;
+}
+
+.signup-left {
+    flex: 1;
+    background-color: #b4511f;
+    color: #fff;
+    padding: 3rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+}
+
+.signup-left .logo {
+    font-size: 2rem;
+    font-weight: bold;
+    margin-top: -160px;
+}
+
+.signup-left .welcome-text {
+    margin-top: 5px;
+    font-size: 20px;
+    max-width: 500px;
+}
+
+.signup-illustration {
+    margin-top: 10px;
+    width: 80%;
+    max-width: 300px;
+    margin-left: 40px;
+}
+
+.signup-right {
+    flex: 1;
+    padding: 4rem;
+    background-color: #fff;
+    margin-top: -50px;
+}
+
+.signup-form input,
+.signup-form select {
+    display: block;
+    width: 100%;
+    padding: 0.8rem;
+    margin-bottom: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-family: 'Poppins', sans-serif;
+}
+
+.signup-btn {
+    background-color: #000;
+    color: #fff;
+    padding: 0.9rem;
+    width: 100%;
+    border: none;
+    border-radius: 5px;
+    font-weight: bold;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    font-family: 'Poppins', sans-serif;
+}
+
+.signup-btn:hover {
+    background-color: #ffffff;
+    color: #000000;
+    transition: 0.3s;
+    border: 1px solid black;
+}
+
+.role-pair {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.add-role {
+    background-color: #ffffff;
+    color: #000000;
+    border: 1px solid black;
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    margin-bottom: 1.5rem;
+    font-family: 'Poppins', sans-serif;
+}
+
+.terms {
+    display: flex;
+    align-items: center;
+    margin-top: 1rem;
+    margin-left: -500px;
+}
+
+.box {
+    margin-right: -490px;
+    margin-top: 1rem;
+}
+
+.terms-text {
+    text-align: left;
+    font-size: 10px;
+    color: #000000;
+    font-family: 'Poppins', sans-serif;
+}
