@@ -4,6 +4,8 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\UltraMsgWebhookController;
+use App\Models\Event;
+
 /*
 |--------------------------------------------------------------------------
 | API + Auth Routes
@@ -38,4 +40,21 @@ Route::post('/logout', function (Request $request) {
 */
 
 Route::view('/{any}', 'react')->where('any', '.*');
- 
+
+// ✅ Approval Route
+Route::get('/approve', function (Request $request) {
+    $event = \App\Models\Event::where('approval_token', $request->token)->firstOrFail();
+    $event->status = 'approved';
+    $event->save();
+
+    return Redirect::to('/events');
+});
+
+// ❌ Rejection Route
+Route::get('/reject', function (Request $request) {
+    $event = \App\Models\Event::where('approval_token', $request->token)->firstOrFail();
+    $event->status = 'rejected';
+    $event->save();
+
+    return Redirect::to('/events');
+});

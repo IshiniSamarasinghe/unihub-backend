@@ -6,8 +6,11 @@ use App\Models\Event;
 use App\Models\SocietyApprover;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use App\Mail\EventApprovalRequest;
+use Illuminate\Support\Facades\Log;
 
 class EventController extends Controller
 {
@@ -25,7 +28,6 @@ class EventController extends Controller
             'audience' => 'required|string',
             'society' => 'required|string',
             'position' => 'required|string',
-            'approver' => 'required|string',
             'media' => 'nullable|file|mimes:jpg,jpeg,png|max:2048',
         ]);
 
@@ -34,52 +36,41 @@ class EventController extends Controller
             $validated['media_path'] = $request->file('media')->store('event_media', 'public');
         }
 
-        // ✅ Default status and user
+        // ✅ Add status and user info
         $validated['status'] = 'pending';
         $validated['user_id'] = auth()->id() ?? null;
 
-        // ✅ Create event and generate approval token
+        // ✅ Create event
         $event = Event::create($validated);
+
+        // ✅ Generate approval token and save it
         $token = Str::random(40);
         $event->approval_token = $token;
         $event->save();
 
-        // ✅ Fetch approver WhatsApp number
-        $approver = SocietyApprover::where('society', $validated['society'])
-            ->where('position', $validated['approver'])
+        // ✅ Sanitize & log for debugging
+        $validated['society'] = trim($validated['society']);
+        $validated['position'] = trim($validated['position']);
+        Log::info("🔍 Looking for approver with society: {$validated['society']} and position: {$validated['position']}");
+
+        // ✅ Find approver (case-insensitive lookup)
+        $approver = SocietyApprover::whereRaw('LOWER(society) = ?', [strtolower($validated['society'])])
+            ->whereRaw('LOWER(position) = ?', [strtolower($validated['position'])])
             ->first();
 
-        if ($approver) {
-    $phone = $approver->whatsapp_number;
-
-    // Generate approval token
-    $token = Str::random(40);
-
-    // Create approval/rejection links with newlines
-    $acceptLink = "http://localhost:8000/approve?token={$token}";
-    $rejectLink = "http://localhost:8000/reject?token={$token}";
-
-    // Build message body with line breaks before each link
-   $message = "📢 *New Event Approval Request*\n\n"
-    . "🔸 *Society:* {$validated['society']}\n"
-    . "🔸 *Event:* {$validated['name']}\n"
-    . "🔸 *Requested by:* {$validated['position']}\n"
-    . "🔸 *Date:* {$validated['date']} at {$validated['time']}\n\n"
-    . "Do you approve this event?\n"
-    . "Reply with:\n"
-    . "1️⃣ to *Approve*\n"
-    . "2️⃣ to *Reject*";
-
-    // Send WhatsApp message via UltraMsg
-    Http::post("https://api.ultramsg.com/instance126986/messages/chat", [
-        'token' => '4u4vlvyapuac2r6j',
-        'to' => $phone,
-        'body' => $message,
-    ]);
-}
+        if ($approver && !empty($approver->email)) {
+            try {
+                Mail::to($approver->email)->send(new EventApprovalRequest($event));
+                Log::info("📧 Email sent to approver: {$approver->email}");
+            } catch (\Exception $e) {
+                Log::error("❌ Failed to send email: " . $e->getMessage());
+            }
+        } else {
+            Log::error("❌ Approver not found or email is missing for: {$validated['society']} - {$validated['position']}");
+        }
 
         return response()->json([
-            'message' => 'Event created successfully',
+            'message' => 'Event created successfully and approval email attempted.',
             'event' => $event
         ], 201);
     }
