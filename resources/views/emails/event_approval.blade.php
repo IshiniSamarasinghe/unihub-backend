@@ -11,8 +11,8 @@ You have a new event pending your approval.
 **Society:** {{ $event->society }}  
 **Requested by:** {{ $event->position }}  
 **Date & Time:** {{ $event->date }} at {{ $event->time }}  
-**Description:**  
-{{ $event->description ?? 'No description provided.' }}
+**Description:** {{ $event->description ?? 'No description provided.' }}
+ 
 
 ---
 

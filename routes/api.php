@@ -2,42 +2,45 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Auth\RegisteredUserController;
+use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\EventController;
-use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\TwilioController;
 
-// Public route for registration
-
+// ✅ Public routes
 Route::post('/register', [RegisteredUserController::class, 'store']);
+Route::post('/signin', [LoginController::class, 'login']);
 
-// Protected route for getting authenticated user
+// ✅ Protected route to fetch authenticated user
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::get('/users', [UserController::class, 'index']);
-Route::delete('/users/{id}', [UserController::class, 'destroy']);
+// routes/api.php
+Route::middleware('auth:sanctum')->post('/events', [EventController::class, 'store']);
 
-Route::put('/users/{id}', [UserController::class, 'update']);
 
-Route::post('/events', [EventController::class, 'store']);
+// ✅ Protected routes for admin operations
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/users', [UserController::class, 'index']);
+    Route::delete('/users/{id}', [UserController::class, 'destroy']);
+    Route::put('/users/{id}', [UserController::class, 'update']);
+     
+});
 
-Route::post('/whatsapp-reply', [UltraMsgController::class, 'handleReply']);
+// ✅ WhatsApp reply routes
+Route::post('/whatsapp-reply', [TwilioController::class, 'handleReply']);
 Route::post('/whatsapp-reply', function (Request $request) {
     Log::info('🌐 Webhook received:', $request->all());
 
-    // Handle the message content
     $message = $request->input('data.body');
-
     if (str_starts_with($message, 'APPROVE-')) {
-        // your approval logic
+        // Approval logic here
     } elseif (str_starts_with($message, 'REJECT-')) {
-        // your rejection logic
+        // Rejection logic here
     }
 
     return response()->json(['status' => 'OK']);
 });
-
- 

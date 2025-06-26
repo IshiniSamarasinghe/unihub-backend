@@ -19,6 +19,8 @@ class RegisteredUserController extends Controller
      */
     public function store(Request $request): JsonResponse
     {
+        ini_set('max_execution_time', 3600);
+
         try {
             Log::info('🔍 Starting user registration process');
 
@@ -37,14 +39,15 @@ class RegisteredUserController extends Controller
             Log::info('✅ Validation passed');
             Log::info('🧾 Incoming roles:', $request->roles);
 
-            // ✅ Step 2: Check for super user role ("coeditor")
+            // ✅ Step 2: Check if user has any "super" role
             $isSuperUser = false;
+            $superUserRoles = ['coeditor', 'president', 'secretary', 'juniortreasurer', 'organizingcommittee'];
 
             foreach ($request->roles as $r) {
                 $normalizedRole = strtolower(str_replace([' ', '-', '_'], '', trim($r['role'])));
                 Log::info('🔍 Normalized role: ' . $normalizedRole);
 
-                if ($normalizedRole === 'coeditor') {
+                if (in_array($normalizedRole, $superUserRoles)) {
                     $isSuperUser = true;
                     break;
                 }
@@ -73,7 +76,7 @@ class RegisteredUserController extends Controller
                 Log::info('🎯 Role assigned: ' . json_encode($role));
             }
 
-            // ✅ Step 5: Auto-login & fire registration event
+            // ✅ Step 5: Auto-login & fire event
             Auth::login($user);
             event(new Registered($user));
 
