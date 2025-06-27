@@ -1,9 +1,9 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use App\Http\Controllers\UltraMsgWebhookController;
+use Illuminate\Support\Facades\Redirect;
+use Illuminate\Http\Request;
 use App\Models\Event;
 
 /*
@@ -12,7 +12,6 @@ use App\Models\Event;
 |--------------------------------------------------------------------------
 */
 
-// ✅ Handle login request (from React)
 Route::post('/signin', function (Request $request) {
     $credentials = $request->only('email', 'password');
 
@@ -24,7 +23,6 @@ Route::post('/signin', function (Request $request) {
     return response()->json(['message' => 'Invalid credentials'], 422);
 });
 
-// ✅ Logout endpoint
 Route::post('/logout', function (Request $request) {
     Auth::logout();
     $request->session()->invalidate();
@@ -32,29 +30,64 @@ Route::post('/logout', function (Request $request) {
     return response()->json(['message' => 'Logged out']);
 });
 
+/*
+|--------------------------------------------------------------------------
+| Event Approval Routes (for email links)
+|--------------------------------------------------------------------------
+*/
+
+Route::get('/approve', function (Request $request) {
+    $event = Event::where('approval_token', $request->token)->first();
+
+    if (!$event) {
+        return response()->view('approval-response', [
+            'message' => '❌ Invalid or expired approval token.',
+            'status' => 'error'
+        ]);
+    }
+
+    $event->status = 'approved';
+    $event->save();
+
+    return response()->view('approval-response', [
+        'message' => '✅ Event approved successfully!',
+        'status' => 'success'
+    ]);
+});
+
+Route::get('/reject', function (Request $request) {
+    $event = Event::where('approval_token', $request->token)->first();
+
+    if (!$event) {
+        return response()->view('approval-response', [
+            'message' => '❌ Invalid or expired rejection token.',
+            'status' => 'error'
+        ]);
+    }
+
+    $event->status = 'rejected';
+    $event->save();
+
+    return response()->view('approval-response', [
+        'message' => '❌ Event was rejected successfully.',
+        'status' => 'rejected'
+    ]);
+});
 
 /*
 |--------------------------------------------------------------------------
-| Catch-all Frontend Routes – serve React app from Blade
+| Dev Helper Route (phpinfo)
+|--------------------------------------------------------------------------
+*/
+
+Route::get('/phpinfo', function () {
+    phpinfo();
+});
+
+/*
+|--------------------------------------------------------------------------
+| Catch-All: React Frontend
 |--------------------------------------------------------------------------
 */
 
 Route::view('/{any}', 'react')->where('any', '.*');
-
-// ✅ Approval Route
-Route::get('/approve', function (Request $request) {
-    $event = \App\Models\Event::where('approval_token', $request->token)->firstOrFail();
-    $event->status = 'approved';
-    $event->save();
-
-    return Redirect::to('/events');
-});
-
-// ❌ Rejection Route
-Route::get('/reject', function (Request $request) {
-    $event = \App\Models\Event::where('approval_token', $request->token)->firstOrFail();
-    $event->status = 'rejected';
-    $event->save();
-
-    return Redirect::to('/events');
-});

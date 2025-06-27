@@ -6,8 +6,10 @@ use App\Models\Event;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Support\Facades\Log;
 
-class EventApprovalRequest extends Mailable
+class EventApprovalRequest extends Mailable implements ShouldQueue
 {
     use Queueable, SerializesModels;
 
@@ -19,6 +21,9 @@ class EventApprovalRequest extends Mailable
     public function __construct(Event $event)
     {
         $this->event = $event;
+
+        // 🧪 Log event data to verify fields
+        Log::info('📨 Sending EventApprovalRequest mail with data:', $event->toArray());
     }
 
     /**
@@ -26,7 +31,10 @@ class EventApprovalRequest extends Mailable
      */
     public function build()
     {
-        return $this->subject('Event Approval Request')
-                    ->markdown('emails.event_approval');
+        return $this->subject('📩 Event Approval Request - ' . ($this->event->name ?? 'New Event'))
+                    ->markdown('emails.event_approval')
+                    ->with([
+                        'event' => $this->event,
+                    ]);
     }
 }

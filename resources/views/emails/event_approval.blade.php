@@ -7,12 +7,26 @@ You have a new event pending your approval.
 
 ---
 
-**Event Name:** {{ $event->name }}  
-**Society:** {{ $event->society }}  
-**Requested by:** {{ $event->position }}  
-**Date & Time:** {{ $event->date }} at {{ $event->time }}  
-**Description:** {{ $event->description ?? 'No description provided.' }}
- 
+**Event Name:** {{ $event->name ?? 'N/A' }}  
+**Society:** {{ $event->society ?? 'N/A' }}  
+**Requested by:** {{ $event->position ?? 'N/A' }}  
+**Description:** {{ $event->description ?? 'N/A' }}<br>
+**University:** {{ $event->university ?? 'N/A' }}<br>
+**Faculty:** {{ $event->faculty ?? 'N/A' }}<br>
+@php
+    try {
+        $formattedDate = \Carbon\Carbon::parse($event->date)->format('F j, Y');
+    } catch (Exception $e) {
+        $formattedDate = 'Unknown Date';
+    }
+
+    try {
+        $formattedTime = \Carbon\Carbon::parse($event->time)->format('g:i A');
+    } catch (Exception $e) {
+        $formattedTime = 'Unknown Time';
+    }
+@endphp
+**Date & Time:** {{ $formattedDate }} at {{ $formattedTime }}<br>
 
 ---
 
