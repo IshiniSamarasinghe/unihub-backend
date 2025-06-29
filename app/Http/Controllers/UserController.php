@@ -7,12 +7,12 @@ use Illuminate\Http\Request;
 
 class UserController extends Controller
 {
-    // Fetch all users with their roles
+    // ✅ Fetch all users with their roles
     public function index() {
         return User::with('roles')->get();
     }
 
-    // Delete a user by ID
+    // ✅ Delete a user by ID
     public function destroy($id) {
         $user = User::find($id);
 
@@ -25,7 +25,7 @@ class UserController extends Controller
         return response()->json(['message' => 'User deleted successfully'], 200);
     }
 
-    // ✏️ Update user details (phone, faculty, user_type)
+    // ✅ Update user details (phone, faculty, user_type)
     public function update(Request $request, $id) {
         $user = User::find($id);
 
@@ -43,6 +43,12 @@ class UserController extends Controller
         // Update user fields
         $user->update($request->only(['phone', 'faculty', 'user_type']));
 
-        return response()->json(['message' => 'User updated successfully', 'user' => $user], 200);
+        // Reload user with roles for frontend update
+        $user->load('roles');
+
+        return response()->json([
+            'message' => 'User updated successfully',
+            'user' => $user
+        ], 200);
     }
 }

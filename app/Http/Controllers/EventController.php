@@ -13,11 +13,13 @@ use App\Mail\EventApprovalRequest;
 
 class EventController extends Controller
 {
+    /**
+     * Store a new event submitted by a user.
+     */
     public function store(Request $request)
     {
         Log::info("📥 Event create request by user ID: " . auth()->id());
 
-        // ✅ Step 1: Validate input
         $validated = $request->validate([
             'name' => 'required|string',
             'description' => 'nullable|string',
@@ -34,7 +36,7 @@ class EventController extends Controller
             'media' => 'nullable|file|mimes:jpg,jpeg,png|max:2048',
         ]);
 
-        // ✅ Step 2: Check allowed positions
+        // ✅ Role validation
         $normalizedPosition = strtolower(str_replace([' ', '-', '_'], '', $validated['position']));
         $allowedPositions = [
             'president', 'coeditor', 'socialmediacoordinator',
@@ -45,23 +47,19 @@ class EventController extends Controller
             return response()->json(['error' => 'Unauthorized position for event creation.'], 403);
         }
 
-        // ✅ Step 3: Handle media upload
+        // ✅ Media handling
         if ($request->hasFile('media')) {
             $validated['media_path'] = $request->file('media')->store('event_media', 'public');
         }
 
-        // ✅ Step 4: Append default fields
         $validated['status'] = 'pending';
-        $validated['user_id'] = auth()->id() ?? null;
+        $validated['user_id'] = auth()->id();
 
-        // ✅ Step 5: Retry-safe DB insert
+        // ✅ Safe DB insert with transaction
         try {
             DB::beginTransaction();
 
-            $event = retry(5, function () use ($validated) {
-                return Event::create($validated);
-            }, 100);
-
+            $event = retry(5, fn () => Event::create($validated), 100);
             $event->approval_token = Str::random(40);
             $event->save();
 
@@ -69,27 +67,23 @@ class EventController extends Controller
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error("❌ Event creation failed: " . $e->getMessage());
-            return response()->json(['error' => 'Database write error. Please try again.'], 500);
+            return response()->json(['error' => 'Database write error.'], 500);
         }
 
-        // ✅ Step 6: Lookup approver
+        // ✅ Approver email lookup
         $approver = SocietyApprover::whereRaw('LOWER(society) = ?', [strtolower(trim($validated['society']))])
             ->whereRaw('LOWER(position) = ?', [strtolower(trim($validated['approver']))])
             ->first();
 
-        // ✅ Step 7: Send email to approver
         if ($approver && !empty($approver->email)) {
             try {
-                // Recommended: use queue
-                // Mail::to($approver->email)->queue(new EventApprovalRequest($event));
                 Mail::to($approver->email)->send(new EventApprovalRequest($event->fresh()));
-
                 Log::info("📧 Email sent to approver: {$approver->email}");
             } catch (\Exception $e) {
-                Log::error("❌ Failed to send approval email: " . $e->getMessage());
+                Log::error("❌ Failed to send email: " . $e->getMessage());
             }
         } else {
-            Log::warning("⚠️ Approver not found or missing email: {$validated['society']} - {$validated['approver']}");
+            Log::warning("⚠️ Approver not found or email missing for: {$validated['society']} - {$validated['approver']}");
         }
 
         return response()->json([
@@ -97,4 +91,44 @@ class EventController extends Controller
             'event' => $event
         ], 201);
     }
+
+    /**
+     * Fetch all pending events for the admin panel.
+     */
+    public function pending()
+    {
+        try {
+            $events = Event::where('status', 'pending')
+                ->orderBy('created_at', 'desc')
+                ->get();
+
+            return response()->json($events); // ✅ plain array instead of ['events' => $events]
+        } catch (\Exception $e) {
+            Log::error('❌ Failed to fetch pending events: ' . $e->getMessage());
+            return response()->json(['error' => 'Could not load pending events.'], 500);
+        }
+    }
+
+    /**
+ * Fetch all events regardless of status.
+ */
+public function all()
+{
+    try {
+        $events = Event::orderBy('created_at', 'desc')->get();
+        return response()->json($events); // ✅ return plain array
+    } catch (\Exception $e) {
+        Log::error('❌ Failed to fetch all events: ' . $e->getMessage());
+        return response()->json(['error' => 'Could not load all events.'], 500);
+    }
+}
+
+public function rejected()
+{
+    $rejectedEvents = Event::where('status', 'rejected')->orderBy('created_at', 'desc')->get();
+    return response()->json($rejectedEvents);
+}
+
+
+
 }
