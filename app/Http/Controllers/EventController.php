@@ -55,7 +55,6 @@ class EventController extends Controller
         $validated['status'] = 'pending';
         $validated['user_id'] = auth()->id();
 
-        // ✅ Safe DB insert with transaction
         try {
             DB::beginTransaction();
 
@@ -86,6 +85,8 @@ class EventController extends Controller
             Log::warning("⚠️ Approver not found or email missing for: {$validated['society']} - {$validated['approver']}");
         }
 
+        $event->image_url = $event->media_path ? asset('storage/' . $event->media_path) : null;
+
         return response()->json([
             'message' => 'Event created successfully and email sent (if approver exists).',
             'event' => $event
@@ -100,9 +101,10 @@ class EventController extends Controller
         try {
             $events = Event::where('status', 'pending')
                 ->orderBy('created_at', 'desc')
-                ->get();
+                ->get()
+                ->map(fn($event) => $this->addImageUrl($event));
 
-            return response()->json($events); // ✅ plain array instead of ['events' => $events]
+            return response()->json($events);
         } catch (\Exception $e) {
             Log::error('❌ Failed to fetch pending events: ' . $e->getMessage());
             return response()->json(['error' => 'Could not load pending events.'], 500);
@@ -110,25 +112,65 @@ class EventController extends Controller
     }
 
     /**
- * Fetch all events regardless of status.
- */
-public function all()
-{
-    try {
-        $events = Event::orderBy('created_at', 'desc')->get();
-        return response()->json($events); // ✅ return plain array
-    } catch (\Exception $e) {
-        Log::error('❌ Failed to fetch all events: ' . $e->getMessage());
-        return response()->json(['error' => 'Could not load all events.'], 500);
+     * Fetch all events (only with images).
+     */
+    public function all()
+    {
+        try {
+            $events = Event::whereNotNull('media_path') // ✅ Only events with image
+                ->orderBy('created_at', 'desc')
+                ->get()
+                ->map(fn($event) => $this->addImageUrl($event));
+
+            return response()->json($events);
+        } catch (\Exception $e) {
+            Log::error('❌ Failed to fetch all events: ' . $e->getMessage());
+            return response()->json(['error' => 'Could not load all events.'], 500);
+        }
     }
-}
 
-public function rejected()
-{
-    $rejectedEvents = Event::where('status', 'rejected')->orderBy('created_at', 'desc')->get();
-    return response()->json($rejectedEvents);
-}
+    /**
+     * Fetch rejected events.
+     */
+    public function rejected()
+    {
+        try {
+            $events = Event::where('status', 'rejected')
+                ->orderBy('created_at', 'desc')
+                ->get()
+                ->map(fn($event) => $this->addImageUrl($event));
 
+            return response()->json($events);
+        } catch (\Exception $e) {
+            Log::error('❌ Failed to fetch rejected events: ' . $e->getMessage());
+            return response()->json(['error' => 'Could not load rejected events.'], 500);
+        }
+    }
 
+    /**
+     * Fetch approved events.
+     */
+    public function approved()
+    {
+        try {
+            $events = Event::where('status', 'approved')
+                ->orderBy('date', 'asc')
+                ->get()
+                ->map(fn($event) => $this->addImageUrl($event));
 
+            return response()->json($events);
+        } catch (\Exception $e) {
+            Log::error('❌ Failed to fetch approved events: ' . $e->getMessage());
+            return response()->json(['error' => 'Could not load approved events.'], 500);
+        }
+    }
+
+    /**
+     * Helper to append image_url to event
+     */
+    private function addImageUrl($event)
+    {
+        $event->image_url = $event->media_path ? asset('storage/' . $event->media_path) : null;
+        return $event;
+    }
 }

@@ -29,12 +29,13 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('/users/{id}', [UserController::class, 'destroy']);
 
     // 🔹 Event management
-    Route::post('/events', [EventController::class, 'store']); // From frontend
-    Route::get('/events/pending', [EventController::class, 'pending']);
-    Route::get('/events/all', [EventController::class, 'all']);
-    Route::get('/events/rejected', [EventController::class, 'rejected']);
+    Route::post('/events', [EventController::class, 'store']);          // For event creation
+    Route::get('/events/pending', [EventController::class, 'pending']); // For admin
+    Route::get('/events/rejected', [EventController::class, 'rejected']);// For admin
+    Route::get('/events/all', [EventController::class, 'all']);         // For admin
+    Route::get('/events/approved', [EventController::class, 'approved']); // ✅ For frontend display
 
-    // 🔹 Society Approvers CRUD
+    // 🔹 Society Approvers management
     Route::get('/approvers', [SocietyApproverController::class, 'index']);
     Route::post('/approvers', [SocietyApproverController::class, 'store']);
     Route::put('/approvers/{id}', [SocietyApproverController::class, 'update']);
