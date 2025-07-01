@@ -13,12 +13,23 @@ use App\Http\Controllers\SocietyApproverController;
 Route::post('/register', [RegisteredUserController::class, 'store']);
 Route::post('/signin', [LoginController::class, 'login']);
 
+// ✅ Event routes that must come BEFORE the wildcard {id}
+Route::get('/events/approved', [EventController::class, 'approved']);
+Route::get('/events/all', [EventController::class, 'all']);
+Route::get('/events/pending', [EventController::class, 'pending']);
+Route::get('/events/rejected', [EventController::class, 'rejected']);
+Route::get('/events/past-series', [EventController::class, 'pastSeries']);
+
+
+// ✅ Fetch single event by ID for EventDetails page (must come last)
+Route::get('/events/{id}', [EventController::class, 'show']); // 👈 Moved to bottom
+
 // ✅ Authenticated user fetch
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-// ✅ All Protected Routes (Admin & Logged-in Users)
+// ✅ All Protected Routes
 Route::middleware('auth:sanctum')->group(function () {
     // 🔹 Dashboard metrics
     Route::get('/dashboard-metrics', [DashboardController::class, 'metrics']);
@@ -28,12 +39,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('/users/{id}', [UserController::class, 'update']);
     Route::delete('/users/{id}', [UserController::class, 'destroy']);
 
-    // 🔹 Event management
-    Route::post('/events', [EventController::class, 'store']);          // For event creation
-    Route::get('/events/pending', [EventController::class, 'pending']); // For admin
-    Route::get('/events/rejected', [EventController::class, 'rejected']);// For admin
-    Route::get('/events/all', [EventController::class, 'all']);         // For admin
-    Route::get('/events/approved', [EventController::class, 'approved']); // ✅ For frontend display
+    // 🔹 Event creation (protected)
+    Route::post('/events', [EventController::class, 'store']);
 
     // 🔹 Society Approvers management
     Route::get('/approvers', [SocietyApproverController::class, 'index']);

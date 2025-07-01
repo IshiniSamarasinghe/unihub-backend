@@ -9,13 +9,12 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
+use Illuminate\Support\Carbon;
 use App\Mail\EventApprovalRequest;
 
 class EventController extends Controller
 {
-    /**
-     * Store a new event submitted by a user.
-     */
+    // ✅ Store a new event
     public function store(Request $request)
     {
         Log::info("📥 Event create request by user ID: " . auth()->id());
@@ -36,7 +35,6 @@ class EventController extends Controller
             'media' => 'nullable|file|mimes:jpg,jpeg,png|max:2048',
         ]);
 
-        // ✅ Role validation
         $normalizedPosition = strtolower(str_replace([' ', '-', '_'], '', $validated['position']));
         $allowedPositions = [
             'president', 'coeditor', 'socialmediacoordinator',
@@ -47,7 +45,6 @@ class EventController extends Controller
             return response()->json(['error' => 'Unauthorized position for event creation.'], 403);
         }
 
-        // ✅ Media handling
         if ($request->hasFile('media')) {
             $validated['media_path'] = $request->file('media')->store('event_media', 'public');
         }
@@ -57,11 +54,9 @@ class EventController extends Controller
 
         try {
             DB::beginTransaction();
-
             $event = retry(5, fn () => Event::create($validated), 100);
             $event->approval_token = Str::random(40);
             $event->save();
-
             DB::commit();
         } catch (\Exception $e) {
             DB::rollBack();
@@ -69,7 +64,6 @@ class EventController extends Controller
             return response()->json(['error' => 'Database write error.'], 500);
         }
 
-        // ✅ Approver email lookup
         $approver = SocietyApprover::whereRaw('LOWER(society) = ?', [strtolower(trim($validated['society']))])
             ->whereRaw('LOWER(position) = ?', [strtolower(trim($validated['approver']))])
             ->first();
@@ -93,9 +87,23 @@ class EventController extends Controller
         ], 201);
     }
 
-    /**
-     * Fetch all pending events for the admin panel.
-     */
+    // ✅ Fetch all events
+    public function all()
+    {
+        try {
+            $events = Event::whereNotNull('media_path')
+                ->orderBy('created_at', 'desc')
+                ->get()
+                ->map(fn($event) => $this->addImageUrl($event));
+
+            return response()->json($events);
+        } catch (\Exception $e) {
+            Log::error('❌ Failed to fetch all events: ' . $e->getMessage());
+            return response()->json(['error' => 'Could not load all events.'], 500);
+        }
+    }
+
+    // ✅ Fetch pending events
     public function pending()
     {
         try {
@@ -111,27 +119,7 @@ class EventController extends Controller
         }
     }
 
-    /**
-     * Fetch all events (only with images).
-     */
-    public function all()
-    {
-        try {
-            $events = Event::whereNotNull('media_path') // ✅ Only events with image
-                ->orderBy('created_at', 'desc')
-                ->get()
-                ->map(fn($event) => $this->addImageUrl($event));
-
-            return response()->json($events);
-        } catch (\Exception $e) {
-            Log::error('❌ Failed to fetch all events: ' . $e->getMessage());
-            return response()->json(['error' => 'Could not load all events.'], 500);
-        }
-    }
-
-    /**
-     * Fetch rejected events.
-     */
+    // ✅ Fetch rejected events
     public function rejected()
     {
         try {
@@ -147,9 +135,7 @@ class EventController extends Controller
         }
     }
 
-    /**
-     * Fetch approved events.
-     */
+    // ✅ Fetch approved events
     public function approved()
     {
         try {
@@ -165,9 +151,46 @@ class EventController extends Controller
         }
     }
 
-    /**
-     * Helper to append image_url to event
-     */
+    // ✅ Fetch single event by ID (for EventDetails)
+    public function show($id)
+    {
+        try {
+            $event = Event::findOrFail($id);
+            $event->image_url = $event->media_path ? asset('storage/' . $event->media_path) : null;
+
+            return response()->json($event);
+        } catch (\Exception $e) {
+            Log::error("❌ Failed to fetch event by ID $id: " . $e->getMessage());
+            return response()->json(['error' => 'Event not found.'], 404);
+        }
+    }
+
+    // ✅ Fetch past events that belong to the same series (like Innovista)
+    public function pastSeries(Request $request)
+{
+    $name = $request->query('name');
+    $excludeId = $request->query('excludeId');
+    $now = Carbon::now();
+
+    if (!$name) {
+        return response()->json([]);
+    }
+
+    $query = Event::where('name', 'LIKE', "%$name%")
+        ->where('status', 'approved')
+        ->whereRaw("datetime(date || ' ' || time) < ?", [$now]);
+
+    if ($excludeId) {
+        $query->where('id', '!=', $excludeId);
+    }
+
+    $events = $query->orderBy('date', 'desc')->get()
+        ->map(fn($event) => $this->addImageUrl($event));
+
+    return response()->json($events);
+}
+
+    // ✅ Helper to add image URL
     private function addImageUrl($event)
     {
         $event->image_url = $event->media_path ? asset('storage/' . $event->media_path) : null;
