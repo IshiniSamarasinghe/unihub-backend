@@ -5,6 +5,9 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Http\Request;
 use App\Models\Event;
+use App\Http\Controllers\FCMController;
+
+
 
 /*
 |--------------------------------------------------------------------------
@@ -91,3 +94,10 @@ Route::get('/phpinfo', function () {
 */
 
 Route::view('/{any}', 'react')->where('any', '.*');
+
+Route::get('/test-push', function () {
+    $token = 'YOUR_DEVICE_FCM_TOKEN'; // replace this with the token printed in your browser console
+    return app(FCMController::class)->sendNotification($token);
+});
+
+ 
