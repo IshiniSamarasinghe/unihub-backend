@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Log;
 
+
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\UserController;
@@ -12,6 +13,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\SocietyApproverController;
 use App\Http\Controllers\FirebaseNotificationController;
 use App\Http\Controllers\UserNotificationPreferenceController;
+use App\Http\Controllers\StoreItemController;
 
 // ✅ Public routes
 Route::post('/register', [RegisteredUserController::class, 'store']);
@@ -32,6 +34,9 @@ Route::get('/events/past-series', [EventController::class, 'pastSeries']);
 
 // ✅ Fetch single event by ID (keep this last)
 Route::get('/events/{id}', [EventController::class, 'show']);
+Route::delete('/events/{id}', [EventController::class, 'destroy']);
+Route::put('/events/{id}', [EventController::class, 'update']);
+
 
 // ✅ Authenticated user fetch
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
@@ -67,3 +72,10 @@ Route::get('/check-time', function () {
     Log::info("🕒 [TEST] Current Laravel Time: " . $now);
     return response()->json(['now' => $now]);
 });
+
+
+//store model
+Route::get('/store-items', [StoreItemController::class, 'index']);
+Route::post('/store-items', [StoreItemController::class, 'store']);
+Route::delete('/store-items/{id}', [StoreItemController::class, 'destroy']);
+Route::put('/store-items/{id}', [StoreItemController::class, 'update']);

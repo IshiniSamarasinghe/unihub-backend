@@ -223,4 +223,40 @@ class EventController extends Controller
         $event->image_url = $event->media_path ? asset('storage/' . $event->media_path) : null;
         return $event;
     }
+
+    public function destroy($id)
+{
+    $event = Event::findOrFail($id);
+    $event->delete();
+
+    return response()->json(['message' => 'Event deleted successfully.']);
+}
+
+public function update(Request $request, $id)
+{
+    $event = Event::findOrFail($id);
+
+    $validated = $request->validate([
+        'name' => 'required|string',
+        'description' => 'nullable|string',
+        'university' => 'required|string',
+        'faculty' => 'nullable|string',
+        'date' => 'required|date',
+        'time' => 'required',
+        'type' => 'required|string',
+        'location' => 'nullable|string',
+        'audience' => 'required|string',
+        'society' => 'required|string',
+        'approver' => 'required|string',
+        'status' => 'required|string',
+    ]);
+
+    $validated['time'] = \Carbon\Carbon::parse($validated['time'])->format('H:i:s');
+
+    $event->update($validated);
+
+    return response()->json(['message' => 'Event updated successfully.']);
+}
+
+
 }
