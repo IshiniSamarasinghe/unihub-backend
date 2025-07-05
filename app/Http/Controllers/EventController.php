@@ -35,7 +35,6 @@ class EventController extends Controller
         'media' => 'nullable|file|mimes:jpg,jpeg,png|max:2048',
     ]);
 
-    // ✅ Normalize time to 24-hour format (fixes scheduling issue)
     $validated['time'] = \Carbon\Carbon::parse($validated['time'])->format('H:i:s');
 
     $normalizedPosition = strtolower(str_replace([' ', '-', '_'], '', $validated['position']));
@@ -67,7 +66,7 @@ class EventController extends Controller
         return response()->json(['error' => 'Database write error.'], 500);
     }
 
-    // ✅ Email to approver
+    // ✅ Send email to approver immediately (no conditions)
     $approver = SocietyApprover::whereRaw('LOWER(society) = ?', [strtolower(trim($validated['society']))])
         ->whereRaw('LOWER(position) = ?', [strtolower(trim($validated['approver']))])
         ->first();
@@ -83,7 +82,7 @@ class EventController extends Controller
         Log::warning("⚠️ Approver not found or email missing for: {$validated['society']} - {$validated['approver']}");
     }
 
-    // ✅ Push Notification to all users
+    // ✅ Push Notification to all users (no change)
     try {
         $tokens = \App\Models\NotificationToken::pluck('token')->toArray();
 
@@ -108,7 +107,7 @@ class EventController extends Controller
     $event->image_url = $event->media_path ? asset('storage/' . $event->media_path) : null;
 
     return response()->json([
-        'message' => 'Event created successfully and email/push sent.',
+        'message' => 'Event created successfully. Email and push notification sent.',
         'event' => $event
     ], 201);
 }
@@ -116,19 +115,21 @@ class EventController extends Controller
 
     // ✅ Fetch all events
     public function all()
-    {
-        try {
-            $events = Event::whereNotNull('media_path')
-                ->orderBy('created_at', 'desc')
-                ->get()
-                ->map(fn($event) => $this->addImageUrl($event));
+{
+    try {
+        $events = Event::where('status', 'approved')  // ✅ Only approved
+            ->whereNotNull('media_path')
+            ->orderBy('created_at', 'desc')
+            ->get()
+            ->map(fn($event) => $this->addImageUrl($event));
 
-            return response()->json($events);
-        } catch (\Exception $e) {
-            Log::error('❌ Failed to fetch all events: ' . $e->getMessage());
-            return response()->json(['error' => 'Could not load all events.'], 500);
-        }
+        return response()->json($events);
+    } catch (\Exception $e) {
+        Log::error('❌ Failed to fetch approved events: ' . $e->getMessage());
+        return response()->json(['error' => 'Could not load events.'], 500);
     }
+}
+
 
     // ✅ Fetch pending events
     public function pending()

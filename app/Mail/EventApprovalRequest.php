@@ -9,7 +9,8 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Support\Facades\Log;
 
-class EventApprovalRequest extends Mailable implements ShouldQueue
+class EventApprovalRequest extends Mailable
+
 {
     use Queueable, SerializesModels;
 
@@ -31,10 +32,12 @@ class EventApprovalRequest extends Mailable implements ShouldQueue
      */
     public function build()
     {
-        return $this->subject('📩 Event Approval Request - ' . ($this->event->name ?? 'New Event'))
-                    ->markdown('emails.event_approval')
-                    ->with([
-                        'event' => $this->event,
-                    ]);
+       return $this->subject('📩 Event Approval Request - ' . ($this->event->name ?? 'New Event'))
+            ->markdown('emails.event_approval')
+            ->with([
+                'event' => $this->event,
+            ]);
+
+
     }
 }
