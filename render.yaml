@@ -1,0 +1,18 @@
+services:
+  - type: web
+    name: unihub-backend
+    env: docker
+    plan: free
+    region: singapore
+    branch: main
+    buildCommand: ""
+    startCommand: "php artisan serve --host=0.0.0.0 --port=10000"
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: APP_KEY
+        value: base64:D8+NgLRmmP2WdrLFw9oPta/en9EGIIDwzquPj6UudOg=
+      - key: DB_CONNECTION
+        value: sqlite
+      - key: DB_DATABASE
+        value: /tmp/database.sqlite
