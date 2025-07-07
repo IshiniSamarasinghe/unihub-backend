@@ -4,7 +4,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Log;
 
-
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\UserController;
@@ -25,18 +24,18 @@ Route::post('/test-fcm', [FirebaseNotificationController::class, 'testNotificati
 Route::post('/send-notification', [FirebaseNotificationController::class, 'send']); // Optional
 Route::post('/broadcast-notification', [FirebaseNotificationController::class, 'broadcast']);
 
-// ✅ Event routes (ordering matters!)
+// ✅ Public event routes
 Route::get('/events/approved', [EventController::class, 'approved']);
 Route::get('/events/all', [EventController::class, 'all']);
 Route::get('/events/pending', [EventController::class, 'pending']);
 Route::get('/events/rejected', [EventController::class, 'rejected']);
 Route::get('/events/past-series', [EventController::class, 'pastSeries']);
 
-// ✅ Fetch single event by ID (keep this last)
-Route::get('/events/{id}', [EventController::class, 'show']);
-Route::delete('/events/{id}', [EventController::class, 'destroy']);
-Route::put('/events/{id}', [EventController::class, 'update']);
-
+// ✅ Store routes (public)
+Route::get('/store-items', [StoreItemController::class, 'index']);
+Route::post('/store-items', [StoreItemController::class, 'store']);
+Route::delete('/store-items/{id}', [StoreItemController::class, 'destroy']);
+Route::put('/store-items/{id}', [StoreItemController::class, 'update']);
 
 // ✅ Authenticated user fetch
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
@@ -55,6 +54,8 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // 🔹 Event creation
     Route::post('/events', [EventController::class, 'store']);
+    Route::delete('/events/{id}', [EventController::class, 'destroy']);
+    Route::put('/events/{id}', [EventController::class, 'update']);
 
     // 🔹 Society approvers
     Route::get('/approvers', [SocietyApproverController::class, 'index']);
@@ -64,18 +65,17 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // 🔹 Notification preferences
     Route::put('/user/notifications', [UserNotificationPreferenceController::class, 'update']);
+
+    // ✅ ✅ 🔹 Super user's "My Events"
+    Route::get('/events/mine', [EventController::class, 'mine']); // ⚠️ This MUST be before /events/{id}
 });
 
-// ✅ Server time checker for testing cronjob
+// ✅ Keep this wildcard route LAST
+Route::get('/events/{id}', [EventController::class, 'show']);
+
+// ✅ Test endpoint
 Route::get('/check-time', function () {
     $now = now();
     Log::info("🕒 [TEST] Current Laravel Time: " . $now);
     return response()->json(['now' => $now]);
 });
-
-
-//store model
-Route::get('/store-items', [StoreItemController::class, 'index']);
-Route::post('/store-items', [StoreItemController::class, 'store']);
-Route::delete('/store-items/{id}', [StoreItemController::class, 'destroy']);
-Route::put('/store-items/{id}', [StoreItemController::class, 'update']);
