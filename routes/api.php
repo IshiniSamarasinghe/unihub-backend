@@ -79,3 +79,4 @@ Route::get('/check-time', function () {
     Log::info("🕒 [TEST] Current Laravel Time: " . $now);
     return response()->json(['now' => $now]);
 });
+Route::get('/store-items', [StoreItemController::class, 'index']);
