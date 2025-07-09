@@ -13,6 +13,8 @@ use App\Http\Controllers\SocietyApproverController;
 use App\Http\Controllers\FirebaseNotificationController;
 use App\Http\Controllers\UserNotificationPreferenceController;
 use App\Http\Controllers\StoreItemController;
+use Illuminate\Support\Facades\Auth;
+
 
 // ✅ Public routes
 Route::post('/register', [RegisteredUserController::class, 'store']);
@@ -80,3 +82,9 @@ Route::get('/check-time', function () {
     return response()->json(['now' => $now]);
 });
 Route::get('/store-items', [StoreItemController::class, 'index']);
+
+// ✅ log out
+Route::middleware('auth:sanctum')->post('/logout', function () {
+    Auth::guard('web')->logout();
+    return response()->json(['message' => 'Logged out']);
+});
