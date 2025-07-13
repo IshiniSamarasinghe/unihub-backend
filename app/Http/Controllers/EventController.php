@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Illuminate\Support\Carbon;
 use App\Mail\EventApprovalRequest;
+ 
 
 class EventController extends Controller
 {
@@ -172,17 +173,20 @@ class EventController extends Controller
     }
 
     public function show($id)
-    {
-        try {
-            $event = Event::findOrFail($id);
-            $event->image_url = $event->media_path ? asset('storage/' . $event->media_path) : null;
-
-            return response()->json($event);
-        } catch (\Exception $e) {
-            Log::error("❌ Failed to fetch event by ID $id: " . $e->getMessage());
-            return response()->json(['error' => 'Event not found.'], 404);
-        }
+{
+    try {
+        $event = Event::findOrFail($id);
+        $event = $this->addImageUrl($event); // ✅ attach image_url
+        return response()->json($event);
+    } catch (\Throwable $e) {
+        return response()->json([
+            'error' => 'Failed to load event',
+            'message' => $e->getMessage()
+        ], 500);
     }
+}
+
+
 
     public function pastSeries(Request $request)
     {
@@ -249,15 +253,30 @@ class EventController extends Controller
     }
 
     // ✅ For MyEvents (super user)
-    public function mine()
-    {
+public function mine()
+{
+    try {
         $userId = auth()->id();
+        Log::info("✅ MyEvents triggered by user ID: $userId");
 
         $events = Event::where('user_id', $userId)
             ->orderBy('created_at', 'desc')
             ->get()
-            ->map(fn($event) => $this->addImageUrl($event));
+            ->map(function ($event) {
+                // ✅ Attach full URL
+                $event->image_url = $event->media_path
+                    ? asset('storage/' . $event->media_path)
+                    : null;
+                return $event;
+            });
 
         return response()->json($events);
+
+    } catch (\Throwable $e) {
+        Log::error('❌ Error in EventController@mine: ' . $e->getMessage(), [
+            'trace' => $e->getTraceAsString()
+        ]);
+        return response()->json(['error' => 'Something went wrong'], 500);
     }
+}
 }

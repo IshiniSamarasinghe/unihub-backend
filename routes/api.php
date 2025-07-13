@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Auth;
 
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\LoginController;
@@ -13,8 +14,8 @@ use App\Http\Controllers\SocietyApproverController;
 use App\Http\Controllers\FirebaseNotificationController;
 use App\Http\Controllers\UserNotificationPreferenceController;
 use App\Http\Controllers\StoreItemController;
-use Illuminate\Support\Facades\Auth;
-
+use App\Http\Controllers\API\AdminAuthController;
+use App\Http\Controllers\EventMediaController;
 
 // ✅ Public routes
 Route::post('/register', [RegisteredUserController::class, 'store']);
@@ -54,26 +55,23 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('/users/{id}', [UserController::class, 'update']);
     Route::delete('/users/{id}', [UserController::class, 'destroy']);
 
-    // 🔹 Event creation
+    // 🔹 Event operations
     Route::post('/events', [EventController::class, 'store']);
     Route::delete('/events/{id}', [EventController::class, 'destroy']);
     Route::put('/events/{id}', [EventController::class, 'update']);
 
-    // 🔹 Society approvers
-    Route::get('/approvers', [SocietyApproverController::class, 'index']);
-    Route::post('/approvers', [SocietyApproverController::class, 'store']);
-    Route::put('/approvers/{id}', [SocietyApproverController::class, 'update']);
-    Route::delete('/approvers/{id}', [SocietyApproverController::class, 'destroy']);
+    // 🔹 Super user's My Events
+    Route::get('/events/mine', [EventController::class, 'mine']);
 
-    // 🔹 Notification preferences
-    Route::put('/user/notifications', [UserNotificationPreferenceController::class, 'update']);
+    // ✅ ✅ Event Media Upload (Super Users Only)
+    Route::post('/event-media/upload', [EventMediaController::class, 'upload']);
 
-    // ✅ ✅ 🔹 Super user's "My Events"
-    Route::get('/events/mine', [EventController::class, 'mine']); // ⚠️ This MUST be before /events/{id}
+    // 🔹 Event media view
+    Route::get('/event-media/{eventId}', [EventMediaController::class, 'forEvent']);
+
+    // ✅ ✅ Keep this wildcard route LAST inside this group
+    Route::get('/events/{id}', [EventController::class, 'show']);
 });
-
-// ✅ Keep this wildcard route LAST
-Route::get('/events/{id}', [EventController::class, 'show']);
 
 // ✅ Test endpoint
 Route::get('/check-time', function () {
@@ -81,10 +79,13 @@ Route::get('/check-time', function () {
     Log::info("🕒 [TEST] Current Laravel Time: " . $now);
     return response()->json(['now' => $now]);
 });
-Route::get('/store-items', [StoreItemController::class, 'index']);
 
 // ✅ log out
 Route::middleware('auth:sanctum')->post('/logout', function () {
     Auth::guard('web')->logout();
     return response()->json(['message' => 'Logged out']);
 });
+
+// ✅ Admin login
+Route::post('/admin/register', [AdminAuthController::class, 'register']);
+Route::post('/admin/login', [AdminAuthController::class, 'login']);
