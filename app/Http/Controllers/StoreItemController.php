@@ -16,9 +16,9 @@ class StoreItemController extends Controller
     {
         $validated = $request->validate([
             'title' => 'required|string',
-            'faculty' => 'required|string',
+            'faculty' => 'string',
             'description' => 'required|string',
-            'price' => 'required|string',
+            'price' => 'string',
             'details' => 'required|string',
             'image' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
         ]);

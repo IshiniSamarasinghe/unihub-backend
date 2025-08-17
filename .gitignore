@@ -25,6 +25,15 @@ Homestead.yaml
 npm-debug.log
 Thumbs.db
 yarn-error.log
+# Ignore React build files inside Laravel public
+/public/*.html
+/public/*.json
+/public/*.png
+/public/*.ico
+/public/*.js
+/public/static/
+/public/assets/
+/public/react/
 =======
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
