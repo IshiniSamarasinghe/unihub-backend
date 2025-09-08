@@ -7,11 +7,9 @@ use Illuminate\Http\Request;
 use App\Models\Event;
 use App\Http\Controllers\FCMController;
 
-
-
 /*
 |--------------------------------------------------------------------------
-| API + Auth Routes
+| API + Auth Routes (session-based)
 |--------------------------------------------------------------------------
 */
 
@@ -79,10 +77,28 @@ Route::get('/reject', function (Request $request) {
 
 /*
 |--------------------------------------------------------------------------
+| Admin "me" endpoint (session guard)
+|--------------------------------------------------------------------------
+*/
+Route::middleware('auth:admin')->get('/api/admin/me', function () {
+    $admin = auth('admin')->user();
+
+    return response()->json([
+        'admin' => [
+            'id'          => $admin->id,
+            'name'        => $admin->name,
+            'email'       => $admin->email,
+            'avatar_path' => $admin->avatar_path,
+            'avatar_url'  => $admin->avatar_path ? asset('storage/'.$admin->avatar_path) : null,
+        ],
+    ]);
+});
+
+/*
+|--------------------------------------------------------------------------
 | Dev Helper Route (phpinfo)
 |--------------------------------------------------------------------------
 */
-
 Route::get('/phpinfo', function () {
     phpinfo();
 });
@@ -92,12 +108,9 @@ Route::get('/phpinfo', function () {
 | Catch-All: React Frontend
 |--------------------------------------------------------------------------
 */
-
 Route::view('/{any}', 'react')->where('any', '.*');
 
 Route::get('/test-push', function () {
     $token = 'YOUR_DEVICE_FCM_TOKEN'; // replace this with the token printed in your browser console
     return app(FCMController::class)->sendNotification($token);
 });
-
- 

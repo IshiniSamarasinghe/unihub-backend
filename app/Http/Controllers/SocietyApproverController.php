@@ -1,5 +1,7 @@
 <?php
 
+// app/Http/Controllers/SocietyApproverController.php
+// app/Http/Controllers/SocietyApproverController.php
 namespace App\Http\Controllers;
 
 use App\Models\SocietyApprover;
@@ -9,31 +11,43 @@ class SocietyApproverController extends Controller
 {
     public function index()
     {
-        return SocietyApprover::all();
+        return response()->json(
+            SocietyApprover::select('id','society','position','whatsapp_number','email')
+                ->orderBy('id')
+                ->get()
+        );
     }
 
     public function store(Request $request)
     {
-        $validated = $request->validate([
+        $data = $request->validate([
             'society' => 'required|string',
             'position' => 'required|string',
             'whatsapp_number' => 'required|string',
             'email' => 'nullable|email',
         ]);
 
-        return SocietyApprover::create($validated);
+        $row = SocietyApprover::create($data);
+        return response()->json($row, 201);
     }
 
     public function update(Request $request, $id)
     {
-        $approver = SocietyApprover::findOrFail($id);
-        $approver->update($request->all());
-        return response()->json(['message' => 'Updated successfully']);
+        $data = $request->validate([
+            'society' => 'sometimes|string',
+            'position' => 'sometimes|string',
+            'whatsapp_number' => 'sometimes|string',
+            'email' => 'nullable|email',
+        ]);
+
+        $row = SocietyApprover::findOrFail($id);
+        $row->update($data);
+        return response()->json($row);
     }
 
     public function destroy($id)
     {
-        SocietyApprover::destroy($id);
-        return response()->json(['message' => 'Deleted successfully']);
+        SocietyApprover::findOrFail($id)->delete();
+        return response()->json(['deleted' => true]);
     }
 }
