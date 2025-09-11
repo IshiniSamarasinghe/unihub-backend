@@ -17,4 +17,6 @@ class Event extends Model
     {
         return $this->hasMany(EventMedia::class);
     }
+
+    
 }
