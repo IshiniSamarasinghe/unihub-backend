@@ -5,7 +5,9 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Http\Request;
 use App\Models\Event;
+use App\Models\User;
 use App\Http\Controllers\FCMController;
+use App\Http\Controllers\Auth\LoginController;
 
 /*
 |--------------------------------------------------------------------------
@@ -77,7 +79,49 @@ Route::get('/reject', function (Request $request) {
 
 /*
 |--------------------------------------------------------------------------
-| Admin "me" endpoint (session guard)
+| Same-origin Admin Endpoints (use session "web" guard)
+| These are what your React admin pages should call.
+|--------------------------------------------------------------------------
+*/
+Route::middleware(['auth' /*, 'is_admin'  // add your admin middleware if you have one */])->group(function () {
+    // Who am I? (used by AdminLayout)
+    Route::get('/admin/me', function () {
+        $u = auth()->user();
+        return response()->json([
+            'id'          => $u->id,
+            'name'        => $u->name,
+            'email'       => $u->email,
+            'avatar_path' => $u->avatar_path ?? null,
+            'avatar_url'  => $u->avatar_path ? asset('storage/' . $u->avatar_path) : null,
+        ]);
+    });
+
+    // Event feeds for admin pages
+    Route::get('/admin/all-events', function () {
+        return Event::latest()->get();
+    });
+
+    Route::get('/admin/pending-events', function () {
+        return Event::where('status', 'pending')->latest()->get();
+    });
+
+    Route::get('/admin/rejected-events', function () {
+        return Event::where('status', 'rejected')->latest()->get();
+    });
+
+    // Dashboard metrics
+    Route::get('/dashboard-metrics', function () {
+        return response()->json([
+            'totalEvents'     => Event::count(),
+            'pendingEvents'   => Event::where('status', 'pending')->count(),
+            'registeredUsers' => User::count(),
+        ]);
+    });
+});
+
+/*
+|--------------------------------------------------------------------------
+| Admin "me" endpoint (API guard) — kept for compatibility if used elsewhere
 |--------------------------------------------------------------------------
 */
 Route::middleware('auth:admin')->get('/api/admin/me', function () {
@@ -89,7 +133,7 @@ Route::middleware('auth:admin')->get('/api/admin/me', function () {
             'name'        => $admin->name,
             'email'       => $admin->email,
             'avatar_path' => $admin->avatar_path,
-            'avatar_url'  => $admin->avatar_path ? asset('storage/'.$admin->avatar_path) : null,
+            'avatar_url'  => $admin->avatar_path ? asset('storage/' . $admin->avatar_path) : null,
         ],
     ]);
 });
@@ -105,12 +149,25 @@ Route::get('/phpinfo', function () {
 
 /*
 |--------------------------------------------------------------------------
-| Catch-All: React Frontend
+| Test Push Notification
+|--------------------------------------------------------------------------
+*/
+Route::get('/test-push', function () {
+    $token = 'YOUR_DEVICE_FCM_TOKEN'; // replace with a real token printed in your browser console
+    return app(FCMController::class)->sendNotification($token);
+});
+
+/*
+|--------------------------------------------------------------------------
+| Define the Login Route (required by Laravel's Authenticate Middleware)
+|--------------------------------------------------------------------------
+*/
+Route::get('login', [LoginController::class, 'showLoginForm'])->name('login'); // Login page
+Route::post('login', [LoginController::class, 'login']); // Login submission
+
+/*
+|--------------------------------------------------------------------------
+| Catch-All: React Frontend (keep this LAST)
 |--------------------------------------------------------------------------
 */
 Route::view('/{any}', 'react')->where('any', '.*');
-
-Route::get('/test-push', function () {
-    $token = 'YOUR_DEVICE_FCM_TOKEN'; // replace this with the token printed in your browser console
-    return app(FCMController::class)->sendNotification($token);
-});

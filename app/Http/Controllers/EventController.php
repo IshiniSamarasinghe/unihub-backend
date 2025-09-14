@@ -17,7 +17,7 @@ use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
 
 class EventController extends Controller
 {
-    // ✅ Store a new event
+    // ✅ Store a new event (unchanged)
     public function store(Request $request)
     {
         Log::info("📥 Event create request by user ID: " . auth()->id());
@@ -33,15 +33,13 @@ class EventController extends Controller
             'location'    => 'nullable|string',
             'audience'    => 'required|string',
             'society'     => 'required|string',
-            'position'    => 'required|string',   // creator’s position
-            'approver'    => 'required|string',   // approver’s position (used to lookup email)
+            'position'    => 'required|string',
+            'approver'    => 'required|string',
             'media'       => 'nullable|file|mimes:jpg,jpeg,png|max:2048',
         ]);
 
-        // Normalize time to HH:MM:SS
         $validated['time'] = Carbon::parse($validated['time'])->format('H:i:s');
 
-        // Basic authorization on creator’s position
         $normalizedPosition = strtolower(str_replace([' ', '-', '_'], '', $validated['position']));
         $allowedPositions   = [
             'president', 'coeditor', 'socialmediacoordinator',
@@ -51,7 +49,6 @@ class EventController extends Controller
             return response()->json(['error' => 'Unauthorized position for event creation.'], 403);
         }
 
-        // Optional media
         if ($request->hasFile('media')) {
             $validated['media_path'] = $request->file('media')->store('event_media', 'public');
         }
@@ -59,15 +56,11 @@ class EventController extends Controller
         $validated['status']  = 'pending';
         $validated['user_id'] = auth()->id();
 
-        // ✅ Create event + approval token
         try {
             DB::beginTransaction();
-
-            // Retry helps with transient SQLite locks
             $event = retry(5, fn () => Event::create($validated), 100);
             $event->approval_token = Str::random(40);
             $event->save();
-
             DB::commit();
         } catch (\Throwable $e) {
             DB::rollBack();
@@ -75,12 +68,10 @@ class EventController extends Controller
             return response()->json(['error' => 'Database write error.'], 500);
         }
 
-        // ✅ Find approver by society + approver position (case-insensitive, trimmed)
         $approver = SocietyApprover::whereRaw('LOWER(TRIM(society)) = ?', [strtolower(trim($validated['society']))])
             ->whereRaw('LOWER(TRIM(position)) = ?', [strtolower(trim($validated['approver']))])
             ->first();
 
-        // --- DIAGNOSTICS (what mail settings are actually in use) ---
         Log::info('✉️ Mail config snapshot', [
             'default'     => config('mail.default'),
             'from'        => config('mail.from'),
@@ -93,10 +84,8 @@ class EventController extends Controller
             'env_port'    => env('MAIL_PORT'),
             'env_encrypt' => env('MAIL_ENCRYPTION'),
         ]);
-        // ------------------------------------------------------------
 
         if ($approver && !empty($approver->email)) {
-            // ✅ Step E: precise SMTP transport error logging
             try {
                 Mail::to($approver->email)->send(new EventApprovalRequest($event->fresh()));
                 Log::info("✅ Approval email sent to {$approver->email}");
@@ -116,10 +105,8 @@ class EventController extends Controller
             Log::warning("⚠️ Approver not found or email missing for society='{$validated['society']}', approver_position='{$validated['approver']}'");
         }
 
-        // ✅ Push notification (unchanged)
         try {
             $tokens = NotificationToken::pluck('token')->toArray();
-
             if (!empty($tokens)) {
                 Http::withHeaders([
                     'Authorization' => 'key=' . env('FIREBASE_SERVER_KEY'),
@@ -133,14 +120,12 @@ class EventController extends Controller
                                    ' | 🕒 ' . Carbon::parse($event->time)->format('g:i A'),
                     ],
                 ]);
-
                 Log::info("📲 Push notification broadcasted to " . count($tokens) . " users");
             }
         } catch (\Throwable $e) {
             Log::error("❌ Failed to send push notification: " . $e->getMessage());
         }
 
-        // Attach computed image URL for response
         $event->image_url = $event->media_path ? asset('storage/' . $event->media_path) : null;
 
         return response()->json([
@@ -149,15 +134,23 @@ class EventController extends Controller
         ], 201);
     }
 
-    public function all()
+    // 🔽 Helper: normalize per-page & always paginate
+    private function perPage(Request $request): int
+    {
+        $per = (int) $request->query('per_page', 12);
+        return max(1, min(50, $per)); // cap to 50 to avoid huge payloads
+    }
+
+    // ✅ Home grid: only approved + with media, newest first — ALWAYS paginated
+    public function all(Request $request)
     {
         try {
             $events = Event::where('status', 'approved')
                 ->whereNotNull('media_path')
                 ->orderBy('created_at', 'desc')
-                ->get()
-                ->map(fn($event) => $this->addImageUrl($event));
+                ->paginate($this->perPage($request));
 
+            $events->getCollection()->transform(fn ($e) => $this->addImageUrl($e));
             return response()->json($events);
         } catch (\Throwable $e) {
             Log::error('❌ Failed to fetch approved events: ' . $e->getMessage());
@@ -165,29 +158,38 @@ class EventController extends Controller
         }
     }
 
-    public function pending()
-    {
-        try {
-            $events = Event::where('status', 'pending')
-                ->orderBy('created_at', 'desc')
-                ->get()
-                ->map(fn($event) => $this->addImageUrl($event));
+ public function pending(Request $request)
+{
+    try {
+        // Query to fetch pending events
+        $events = Event::where('status', 'pending')
+            ->orderBy('created_at', 'desc')
+            ->paginate($this->perPage($request)); // Paginate the results
 
-            return response()->json($events);
-        } catch (\Throwable $e) {
-            Log::error('❌ Failed to fetch pending events: ' . $e->getMessage());
-            return response()->json(['error' => 'Could not load pending events.'], 500);
-        }
+        // Debugging: Log the events and pagination info
+        Log::info('✅ Pending events fetched:', ['events' => $events]);
+
+        // Ensure that we transform the events (add image URL if media exists)
+        $events->getCollection()->transform(fn ($e) => $this->addImageUrl($e));
+        
+        // Return the events as JSON
+        return response()->json($events);
+    } catch (\Throwable $e) {
+        // Log the error if fetching failed
+        Log::error('❌ Failed to fetch pending events: ' . $e->getMessage());
+        return response()->json(['error' => 'Could not load pending events.'], 500);
     }
+}
 
-    public function rejected()
+
+    public function rejected(Request $request)
     {
         try {
             $events = Event::where('status', 'rejected')
                 ->orderBy('created_at', 'desc')
-                ->get()
-                ->map(fn($event) => $this->addImageUrl($event));
+                ->paginate($this->perPage($request));
 
+            $events->getCollection()->transform(fn ($e) => $this->addImageUrl($e));
             return response()->json($events);
         } catch (\Throwable $e) {
             Log::error('❌ Failed to fetch rejected events: ' . $e->getMessage());
@@ -195,14 +197,14 @@ class EventController extends Controller
         }
     }
 
-    public function approved()
+    public function approved(Request $request)
     {
         try {
             $events = Event::where('status', 'approved')
                 ->orderBy('date', 'asc')
-                ->get()
-                ->map(fn($event) => $this->addImageUrl($event));
+                ->paginate($this->perPage($request));
 
+            $events->getCollection()->transform(fn ($e) => $this->addImageUrl($e));
             return response()->json($events);
         } catch (\Throwable $e) {
             Log::error('❌ Failed to fetch approved events: ' . $e->getMessage());
@@ -214,7 +216,7 @@ class EventController extends Controller
     {
         try {
             $event = Event::findOrFail($id);
-            $event  = $this->addImageUrl($event); // ✅ attach image_url
+            $event  = $this->addImageUrl($event);
             return response()->json($event);
         } catch (\Throwable $e) {
             return response()->json([
@@ -242,9 +244,10 @@ class EventController extends Controller
             $query->where('id', '!=', $excludeId);
         }
 
-        $events = $query->orderBy('date', 'desc')->get()
-            ->map(fn($event) => $this->addImageUrl($event));
+        $events = $query->orderBy('date', 'desc')
+            ->paginate($this->perPage($request));
 
+        $events->getCollection()->transform(fn ($e) => $this->addImageUrl($e));
         return response()->json($events);
     }
 
@@ -258,7 +261,6 @@ class EventController extends Controller
     {
         $event = Event::findOrFail($id);
         $event->delete();
-
         return response()->json(['message' => 'Event deleted successfully.']);
     }
 
@@ -297,12 +299,9 @@ class EventController extends Controller
 
             $events = Event::where('user_id', $userId)
                 ->orderBy('created_at', 'desc')
-                ->get()
-                ->map(function ($event) {
-                    $event->image_url = $event->media_path ? asset('storage/' . $event->media_path) : null;
-                    return $event;
-                });
+                ->paginate(12);
 
+            $events->getCollection()->transform(fn ($e) => $this->addImageUrl($e));
             return response()->json($events);
         } catch (\Throwable $e) {
             Log::error('❌ Error in EventController@mine: ' . $e->getMessage(), [
