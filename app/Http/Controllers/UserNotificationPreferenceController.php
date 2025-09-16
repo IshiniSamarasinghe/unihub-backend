@@ -14,7 +14,11 @@ class UserNotificationPreferenceController extends Controller
         $user->notifications_enabled = $request->enabled;
         $user->save();
 
-        return response()->json(['success' => true, 'status' => $user->notifications_enabled]);
+        return response()->json([
+    'success' => true,
+    'enabled' => $user->notifications_enabled
+]);
+
     }
 }
 

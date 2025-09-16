@@ -8,6 +8,8 @@ use App\Models\Event;
 use App\Models\User;
 use App\Http\Controllers\FCMController;
 use App\Http\Controllers\Auth\LoginController;
+// ✅ add this import
+use App\Http\Controllers\Admin\SocietyAdminController;
 
 /*
 |--------------------------------------------------------------------------
@@ -117,6 +119,12 @@ Route::middleware(['auth' /*, 'is_admin'  // add your admin middleware if you ha
             'registeredUsers' => User::count(),
         ]);
     });
+});
+
+// ✅ place this BEFORE the catch-all
+Route::prefix('admin')->middleware(['auth'])->group(function () {
+    // Admin page to view Societies (web page, not API)
+ 
 });
 
 /*

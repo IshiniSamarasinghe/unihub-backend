@@ -4,7 +4,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
+
 use App\Models\Event;
+use App\Models\Society;
 use Carbon\Carbon;
 
 use App\Http\Controllers\Auth\RegisteredUserController;
@@ -20,21 +22,27 @@ use App\Http\Controllers\API\AdminAuthController;
 use App\Http\Controllers\EventMediaController;
 use App\Http\Controllers\NotificationTokenController;
 
+// ✅ NEW imports
+use App\Http\Controllers\SocietyController;
+use App\Http\Controllers\Admin\SocietyAdminController;
+
 /*
 |--------------------------------------------------------------------------
 | Public routes
 |--------------------------------------------------------------------------
 */
 Route::post('/register', [RegisteredUserController::class, 'store']);
-Route::post('/signin', [LoginController::class, 'login']);
+Route::post('/signin',   [LoginController::class, 'login']);
+
+/* ✅ Public Societies list for Join page (adds university_name; adds can_edit if caller is authenticated) */
+Route::get('/societies', [SocietyController::class, 'index']);
 
 /*
 |--------------------------------------------------------------------------
 | FCM Routes
 |--------------------------------------------------------------------------
 */
-Route::post('/save-token', [\App\Http\Controllers\NotificationTokenController::class, 'store']);
-
+Route::post('/save-token', [NotificationTokenController::class, 'store']);
 Route::post('/test-fcm', [FirebaseNotificationController::class, 'testNotification']);
 Route::post('/send-notification', [FirebaseNotificationController::class, 'send']); // optional
 Route::post('/broadcast-notification', [FirebaseNotificationController::class, 'broadcast']);
@@ -62,14 +70,16 @@ Route::get('/approvers', [SocietyApproverController::class, 'index']); // Backwa
 
 /*
 |--------------------------------------------------------------------------
-| Authenticated routes
+| Authenticated routes (Sanctum)
 |--------------------------------------------------------------------------
 */
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
-});
-
 Route::middleware('auth:sanctum')->group(function () {
+
+    // Current user
+    Route::get('/user', function (Request $request) {
+        return $request->user();
+    });
+
     // Dashboard
     Route::get('/dashboard-metrics', [DashboardController::class, 'metrics']);
 
@@ -87,8 +97,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/event-media/{eventId}', [EventMediaController::class, 'forEvent']);
     Route::get('/events/{id}', [EventController::class, 'show']);
 
+    // Upcoming events (SQLite-friendly time normalization)
     Route::get('/events/upcoming', function () {
-        $now = Carbon::now('Asia/Colombo')->format('Y-m-d H:i:s'); // Ensure the correct timezone
+        $now = Carbon::now('Asia/Colombo')->format('Y-m-d H:i:s');
         Log::info("🕒 [Upcoming Events] Current Time: " . $now);
 
         $normalizedTime = "
@@ -112,23 +123,53 @@ Route::middleware('auth:sanctum')->group(function () {
         Log::info("📅 [Upcoming Events] Query Results: ", $upcomingEvents->toArray());
 
         $upcomingEvents->map(function ($event) {
-            $event->formatted_time = Carbon::parse($event->time)->format('h:i A');
+            $event->formatted_time = $event->time ? Carbon::parse($event->time)->format('h:i A') : null;
             $event->image_url = $event->media_path ? asset('storage/' . $event->media_path) : null;
             return $event;
         });
 
         return response()->json($upcomingEvents);
     });
+
+    /* ✅ Super-user Society update (frontend editing) */
+    Route::put('/societies/{society}', [SocietyController::class, 'update']);
+
+    // Logout
+    Route::post('/logout', function () {
+        Auth::guard('web')->logout();
+        return response()->json(['message' => 'Logged out']);
+    });
 });
 
 /*
 |--------------------------------------------------------------------------
-| Society Approvers (mutations)
+| Admin auth
 |--------------------------------------------------------------------------
 */
-Route::post('/society-approvers', [SocietyApproverController::class, 'store']);
-Route::put('/society-approvers/{id}', [SocietyApproverController::class, 'update']);
-Route::delete('/society-approvers/{id}', [SocietyApproverController::class, 'destroy']);
+Route::post('/admin/register', [AdminAuthController::class, 'register']);
+Route::post('/admin/login', [AdminAuthController::class, 'login']);
+
+/*
+|--------------------------------------------------------------------------
+| Admin session probe + admin societies (optional)
+|--------------------------------------------------------------------------
+*/
+Route::prefix('admin')->middleware('auth:sanctum')->group(function () {
+    Route::get('/me', function (Request $request) {
+        $user = $request->user();
+        if (!$user || ($user->user_type ?? null) !== 'admin') {
+            return response()->json(['message' => 'Unauthorized'], 401);
+        }
+        return response()->json($user);
+    });
+
+    // Admin-only society endpoints (for your React Admin Panel)
+    Route::get('/societies',              [SocietyAdminController::class, 'index']);   // list
+    Route::post('/societies',             [SocietyAdminController::class, 'store']);   // ✅ create
+    Route::put('/societies/{society}',    [SocietyAdminController::class, 'update']);  // update
+    Route::delete('/societies/{society}', [SocietyAdminController::class, 'destroy']); // ✅ delete
+});
+
 
 /*
 |--------------------------------------------------------------------------
@@ -140,39 +181,3 @@ Route::get('/check-time', function () {
     Log::info("🕒 [TEST] Current Laravel Time: " . $now);
     return response()->json(['now' => $now]);
 });
-
-// Logout
-Route::middleware('auth:sanctum')->post('/logout', function () {
-    Auth::guard('web')->logout();
-    return response()->json(['message' => 'Logged out']);
-});
-
-// Admin auth
-Route::post('/admin/register', [AdminAuthController::class, 'register']);
-Route::post('/admin/login', [AdminAuthController::class, 'login']);
-
-/*
-|--------------------------------------------------------------------------
-| NEW: Admin session probe (fixes /api/admin/me 401 in UI)
-| - Requires Sanctum cookie session.
-| - Returns 401 if not logged-in or not an admin.
-|--------------------------------------------------------------------------
-*/
-Route::prefix('admin')->middleware('auth:sanctum')->group(function () {
-    Route::get('/me', function (Request $request) {
-        $user = $request->user();
-        if (!$user || ($user->user_type ?? null) !== 'admin') {
-            return response()->json(['message' => 'Unauthorized'], 401);
-        }
-        return response()->json($user);
-    });
-});
-
-/*
-|--------------------------------------------------------------------------
-| REMOVED (old/duplicate):
-| Route::middleware('auth:api')->get('/events/upcoming', 'EventController@getUpcomingEvents');
-| Because you’re using Sanctum session auth, and the old route pointed to a non-existing
-| method + wrong guard.
-|--------------------------------------------------------------------------
-*/

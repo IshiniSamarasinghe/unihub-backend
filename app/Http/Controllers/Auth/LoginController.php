@@ -10,6 +10,16 @@ use Carbon\Carbon;
 
 class LoginController extends Controller
 {
+    /**
+     * Handles SPA redirect for GET /login so Laravel doesn't error.
+     * Keeps your routes/web.php intact.
+     */
+    public function showLoginForm()
+    {
+        // If your React route is different, change '/signin' accordingly.
+        return redirect('/signin');
+    }
+
     public function login(Request $request)
     {
         $credentials = $request->only('email', 'password');
